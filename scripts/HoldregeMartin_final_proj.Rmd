@@ -1,10 +1,13 @@
 ---
 title: "WILD6900 Final Project"
-subtitle: "Fitting a hierarchical linear lodel and evaluating impacts of model mis-specification"
+subtitle: "Fitting a hierarchical linear model and evaluating impacts of model misspecification"
 author: "Martin Holdrege"
 date: "`r Sys.Date()`"
-output: html_document
+output: pdf_document
 ---
+
+# Introduction
+
 
 
 # Methods
@@ -18,3 +21,42 @@ $$\beta_{0i} \sim N(\mu_{\beta_0}, \sigma^2_{\beta_0}))$$
 
 
 $$\beta_{01i} \sim N(\mu_{\beta_1}, \sigma^2_{\beta_1}))$$
+
+$$[\beta_{0i}, \beta_{1i}, \mu_{\beta_0}, \mu_{\beta_1}, 
+\sigma^2_\epsilon,  \sigma^2_{\beta_0},  \sigma^2_{\beta_1}| y_{ij}] \propto
+[y_{ij}|\beta_{0i}, \beta_{1i},\sigma^2_\epsilon]
+[\beta_{0i}, \beta_{1i}|\mu_{\beta_0}, \mu_{\beta_1}, \sigma^2_{\beta_0}, \sigma^2_{\beta_1}]
+[\mu_{\beta_0}]
+[\mu_{\beta_1}]
+[\sigma^2_{\beta_0}]
+[\sigma^2_{\beta_1}]
+[\sigma^2_\epsilon]$$
+
+The likelihood was estimated as follows (where i is year and j is plot):
+
+$$[y_{ij}|\beta_{0i}, \beta_{1i},\sigma^2_\epsilon] = Normal(\beta_{0i}|\mu_{\beta_0}, \sigma^2_{\beta_0})*Normal(\beta_{1i}|\mu_{\beta_1}, \sigma^2_{\beta_1})*\Pi_{i = 1}^I\Pi_{j = 1}^J Normal(y_{ij}|\beta_{0i} + \beta_{1i}x_{ij}, \sigma^2_\epsilon)$$
+
+In all cases uninformative priors were used.
+
+The prior for the intercept hyper-parameter was:
+
+$$[\mu_{\beta_0}] = Normal(\mu_{\beta_0}|0, 10^2)$$
+
+The prior for the slope hyper-parameter was:
+
+$$[\mu_{\beta_1}] = Normal(\mu_{\beta_1}|0, 10^2)$$
+
+The prior for the error term was:
+
+$$[\sigma^2_\epsilon] = uniform(\sigma^2_\epsilon|0, 20)$$
+
+# Results
+
+
+# Discussion
+
+
+
+
+
+
