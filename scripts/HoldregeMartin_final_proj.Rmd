@@ -53,6 +53,17 @@ $$[\sigma^2_\epsilon] = uniform(\sigma^2_\epsilon|0, 20)$$
 # Results
 
 
+```{r eval = FALSE}
+# takes a long time to run (3 hrs)
+dfs <- lapply(1:20, function(i) sim_dat())
+
+mcmc_dfs <- lapply(dfs, mcmc_loop, inits = jags_inits(), tune = 0.5, niter = 10000)
+
+saveRDS(dfs, "data/dfs.rds")
+saveRDS(mcmc_dfs, "data/mcmc_dfs.rds")
+```
+
+
 # Discussion
 
 
