@@ -346,3 +346,128 @@ if (FALSE) {
     unlist()
 }
 
+
+# jags data ---------------------------------------------------------------
+
+make_jags_data <- function() {
+  df <- sim_dat()
+  out <- list(y = df$y, N = nrow(df),
+       J = 6,
+       trmt = df$trmt,
+       year = as.numeric(df$year))
+  out
+}
+
+# for incorrect data model
+make_jags_data_inc <- function() {
+  df <- sim_dat()
+  out <- list(y = df$y, N = nrow(df),
+              trmt = df$trmt)
+  out
+}
+
+# jags model --------------------------------------------------------------
+
+# correct random effects model
+
+sink("re_mod.jags")
+cat("
+model{
+  # Priors
+
+  # hyper parameters
+
+    mu_beta0 ~ dnorm(0, 0.01)
+    mu_beta1 ~ dnorm(0, 0.01)
+
+    sigma_beta0 ~ dunif(0, 20)
+    sigma_beta1 ~ dunif(0, 20)
+
+    tau_beta0 <- pow(sigma_beta0, -2)
+    tau_beta1 <- pow(sigma_beta1, -2)
+
+  # epsilon
+    sigma_eps ~ dunif(0, 20)
+    tau_eps <- pow(sigma_eps, -2)
+
+  # slope/intercept for each year
+    for (j in 1:J) {
+        beta0[j] ~ dnorm(mu_beta0, tau_beta0) # prior on intercept for year j
+        beta1[j] ~ dnorm(mu_beta1, tau_beta1) # prior on slope for year j
+    }
+
+ # Likelihood
+ for (i in 1:N) {
+    mu[i] <- beta0[year[i]] + beta1[year[i]]*trmt[i]
+    y[i] ~ dnorm(mu[i], tau_eps)
+ }
+
+} # end of model
+", fill = TRUE)
+sink()
+
+# incorrect model--not taking year differences into account
+sink("incorrect_mod.jags")
+cat("
+model{
+  # Priors
+
+    beta0 ~ dnorm(0, 0.01)
+    beta1 ~ dnorm(0, 0.01)
+
+  # epsilon
+    sigma_eps ~ dunif(0, 20)
+    tau_eps <- pow(sigma_eps, -2)
+
+ # Likelihood
+ for (i in 1:N) {
+    mu[i] <- beta0 + beta1*trmt[i]
+    y[i] ~ dnorm(mu[i], tau_eps)
+ }
+
+} # end of model
+", fill = TRUE)
+sink()
+
+
+# run jags ----------------------------------------------------------------
+
+# mixed effects jags
+
+# data <-  make_jags_data()
+me_jags <- function(data, n.iter = 20000, n.burnin = 500) {
+  inits <- jags_inits()
+  params <- c("mu_beta0", "mu_beta1", "sigma_beta0", "sigma_beta1",
+              "beta0", "beta1", "sigma_eps")
+  re_fit <- jagsUI::jags(data = data, inits = jags_inits,
+                         parameters.to.save = params,
+                         model.file = "re_mod.jags",
+                         n.chains = 1, n.iter = n.iter, n.burnin = n.burnin, n.thin = 1,
+                         parallel = TRUE)
+  out <- summary(re_fit)
+  out
+}
+
+# system.time(me_jags(data = make_jags_data()))
+# me_jags(data = make_jags_data())
+
+
+# incorrect jags models
+
+jags_inits_inc <- function(){list(beta0 = rnorm(1),
+                              beta1 = rnorm(1),
+                              sigma_eps = runif(1))}
+# data <- make_jags_data_inc()
+inc_jags <- function(data, n.iter = 5000, n.burnin = 500) {
+  inits <- jags_inits_inc()
+  params <- c("beta0", "beta1",  "sigma_eps")
+  fit <- jagsUI::jags(data = data, inits = jags_inits_inc,
+                         parameters.to.save = params,
+                         model.file = "incorrect_mod.jags",
+                         n.chains = 1, n.iter = n.iter, n.burnin = n.burnin, n.thin = 1,
+                         parallel = TRUE)
+  out <- summary(fit)
+  out
+}
+# system.time(inc_jags(make_jags_data_inc()))
+
