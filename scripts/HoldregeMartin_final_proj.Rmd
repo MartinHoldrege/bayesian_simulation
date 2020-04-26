@@ -1,5 +1,5 @@
 ---
-title: "WILD6900 Final Project"
+title: "WILD 6900 Final Project"
 subtitle: "Fitting a hierarchical linear model and evaluating impacts of model misspecification"
 author: "Martin Holdrege"
 date: "`r Sys.Date()`"
