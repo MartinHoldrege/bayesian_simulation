@@ -13,4 +13,4 @@ Simulate 500 data sets, and fit correct hierarchical model and incorrect simple 
 
 ### `scripts/HoldregeMartin_final_proj.rmd`  
 
-Class project report that pulls in results from `jags_simulations.R`. 
+Class project report that pulls in results from `jags_simulations.R`. Knitted pdf of this doc can also be found here: `scripts/HoldregeMartin_final_proj.pdf`. 
